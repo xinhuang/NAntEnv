@@ -1,0 +1,7 @@
+/NAntEnv/obj
+/NAntEnv/bin
+*.user
+*.suo
+/TestResults
+/TestNAntEnv/obj
+/TestNAntEnv/bin

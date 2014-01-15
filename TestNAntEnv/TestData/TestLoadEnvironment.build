@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<project default="Test">
+  <target name="Test">
+    <call target="load-a-normal-env-var"/>
+    <call target="load-environment-var-with-substition"/>
+    <call target="load-environment-var-without-tolower"/>
+    <call target="use-custome-delimeters"/>
+  </target>
+  
+  <target name="load-a-normal-env-var">
+    <setenv name="MyVar" value="Magic"/>
+
+    <load-environment/>
+
+    <if test="${myvar != 'Magic'}">
+      <fail message="expect myvar == 'Magic'"/>
+    </if>
+    <property name="myvar" value=""/>
+  </target>
+
+  <target name="load-environment-var-with-substition">
+    <setenv name="My_Var" value="Magic"/>
+
+    <load-environment/>
+
+    <if test="${my.var != 'Magic'}">
+      <fail message="expect my.var == 'Magic'"/>
+    </if>
+    <property name="my.var" value=""/>
+  </target>
+
+  <target name="load-environment-var-without-tolower">
+    <setenv name="My_Var" value="Magic"/>
+
+    <load-environment tolower="false"/>
+
+    <if test="${My.Var != 'Magic'}">
+      <fail message="expect My.Var == 'Magic'"/>
+    </if>
+    <property name="My.Var" value=""/>
+  </target>
+
+  <target name="use-custome-delimeters">
+    <setenv name="My-Var1" value="Magic"/>
+
+    <load-environment delimeters="-"/>
+
+    <if test="${my.var1 != 'Magic'}">
+      <fail message="expect my.var1 == 'Magic'"/>
+    </if>
+    <property name="my.var1" value=""/>
+  </target>
+</project>
