@@ -46,10 +46,12 @@ namespace NAntEnv
             Project.Log(Level.Info, "Loading environment variables into NAnt properties...");
             foreach (Property prop in EnumerateEnv().Where(Property.ValidatePropertyName))
             {
-                Project.Log(Level.Verbose, "{0} = {1}", prop.Name, prop.Value);
+                if (Verbose)
+                    Project.Log(Level.Info, "{0} = {1}", prop.Name, prop.Value);
                 Project.Properties[prop.Name] = prop.Value;
             }
-            Project.Log(Level.Verbose, Environment.NewLine);
+            if (Verbose)
+                Project.Log(Level.Verbose, Environment.NewLine);
             Project.Unindent();
         }
 
