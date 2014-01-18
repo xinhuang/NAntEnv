@@ -19,9 +19,11 @@ By default, underscore will be replaced by dot, and all letter is converted to l
 ## Options
 
 * `delimeters`: Specify one or more delimeters to be replaced. Default is underscore.
-* `tolower`: If is true, will convert all property names to lowercase; otherwise left as it is. Default is true.
+* `tolower`: If true, all property names will be converted to lowercase. Default is true.
 * `target`: Where to load environment variables. Choices are: `process`(default), `user` or `machine`.
 * `verbose`: Print every environment variables that is loaded.
+* `prefix`: Specify prefix to imported properties.
+* `overwrite`: If true, existing property values (non-readonly) will be overwritten using environment variables. Default is true.
 
 ## License
 

@@ -12,14 +12,11 @@ namespace NAntEnv
     public class LoadEnvTask : Task
     {
         private EnvironmentVariableTarget _environmentVariableTarget = EnvironmentVariableTarget.Process;
-        private bool _toLower = true;
-        private static string _delimeters = "_";
 
-        [TaskAttribute("delimeters")]
-        public string Delimeters
+        public LoadEnvTask()
         {
-            get { return _delimeters; }
-            set { _delimeters = value; }
+            ToLower = true;
+            Delimeters = "_";
         }
 
         [TaskAttribute("target")]
@@ -34,18 +31,24 @@ namespace NAntEnv
         }
 
         [TaskAttribute("tolower")]
-        public bool ToLower
-        {
-            get { return _toLower; }
-            set { _toLower = value; }
-        }
+        public bool ToLower { get; set; }
+        [TaskAttribute("prefix")]
+        public string Prefix { get; set; }
+        [TaskAttribute("delimeters")]
+        public string Delimeters { get; set; }
+        [TaskAttribute("overwrite")]
+        public bool Overwrite { get; set; }
 
         private void LoadEnv(PropertyDictionary properties)
         {
             Project.Indent();
             Project.Log(Level.Info, "Loading environment variables into NAnt properties...");
-            foreach (Property prop in EnumerateEnv().Where(Property.ValidatePropertyName))
+            foreach (Property prop in EnumerateEnv().Where(prop => IsValidateNAntPropertyName(prop.Name)))
             {
+                if (properties.IsReadOnlyProperty(prop.Name))
+                    continue;
+                if (properties.Contains(prop.Name) && !Overwrite)
+                    continue;
                 if (Verbose)
                     Project.Log(Level.Info, "{0} = {1}", prop.Name, prop.Value);
                 Project.Properties[prop.Name] = prop.Value;
@@ -60,9 +63,10 @@ namespace NAntEnv
             return from DictionaryEntry envVar in
                        Environment.GetEnvironmentVariables(_environmentVariableTarget)
                    where !string.IsNullOrWhiteSpace(envVar.Key.ToString())
+                   orderby envVar.Key.ToString()
                    select new Property
                        {
-                           Name = ParseName(envVar.Key.ToString()),
+                           Name = ParseName(Prefix + envVar.Key.ToString()),
                            Value = envVar.Value.ToString()
                        };
         }
@@ -71,9 +75,9 @@ namespace NAntEnv
         {
             s = ToLower ? s.ToLower().Trim() : s.Trim();
             System.Diagnostics.Debug.WriteLine(s);
-            if (!s.Contains(_delimeters))
+            if (!s.Contains(Delimeters))
                 return s;
-            var sections = s.Split(_delimeters.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            var sections = s.Split(Delimeters.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             return string.Join(".", sections);
         }
 
@@ -81,16 +85,15 @@ namespace NAntEnv
         {
             LoadEnv(Project.Properties);
         }
+        private static bool IsValidateNAntPropertyName(string s)
+        {
+            return Regex.IsMatch(s, "^[_A-Za-z0-9][_A-Za-z0-9\\-.]*$");
+        }
     }
 
     class Property
     {
         public string Name { get; set; }
         public string Value { get; set; }
-
-        public static bool ValidatePropertyName(Property prop)
-        {
-            return Regex.IsMatch(prop.Name, "^[_A-Za-z0-9][_A-Za-z0-9\\-.]*$");
-        }
     }
 }

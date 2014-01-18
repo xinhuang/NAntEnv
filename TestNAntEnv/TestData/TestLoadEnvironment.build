@@ -4,8 +4,10 @@
     <call target="load-a-normal-env-var"/>
     <call target="load-environment-var-with-substition"/>
     <call target="load-environment-var-without-tolower"/>
-    <call target="use-custome-delimeters"/>
-  </target>
+    <call target="use-custom-delimeters"/>
+    <call target="use-prefix"/>
+    <call target="when-overwrite-is-false"/>
+    </target>
   
   <target name="load-a-normal-env-var">
     <setenv name="MyVar" value="Magic"/>
@@ -40,7 +42,7 @@
     <property name="My.Var" value=""/>
   </target>
 
-  <target name="use-custome-delimeters">
+  <target name="use-custom-delimeters">
     <setenv name="My-Var1" value="Magic"/>
 
     <load-environment delimeters="-"/>
@@ -49,5 +51,28 @@
       <fail message="expect my.var1 == 'Magic'"/>
     </if>
     <property name="my.var1" value=""/>
+  </target>
+
+  <target name="use-prefix">
+    <setenv name="My_Var1" value="Magic"/>
+
+    <load-environment prefix="env."/>
+
+    <if test="${env.my.var1 != 'Magic'}">
+      <fail message="expect env.my.var1 == 'Magic'"/>
+    </if>
+    <property name="env.my.var1" value=""/>
+  </target>
+
+  <target name="when-overwrite-is-false">
+    <property name="readonly.property" value="original value"/>
+    <setenv name="READONLY_PROPERTY" value="new.value"/>
+
+    <load-environment overwrite="false"/>
+
+    <if test="${readonly.property != 'original value'}">
+      <fail message="expect readonly.property == 'original value'"/>
+    </if>
+    <property name="readonly.property" value=""/>
   </target>
 </project>
